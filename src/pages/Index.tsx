@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 
 const HERO_IMAGE = "https://cdn.poehali.dev/projects/7b7a4f0f-cb4b-4d67-a279-d05d4a7eefc6/files/4f497074-0334-43af-9dab-dfddcf38b83c.jpg";
@@ -7,61 +7,65 @@ const NAV_ITEMS = [
   { id: "home", label: "Главная" },
   { id: "packages", label: "Пакеты" },
   { id: "about", label: "О сервере" },
-  { id: "status", label: "Статус" },
 ];
 
 const PACKAGES = [
   {
-    id: "sprout",
-    name: "Росток",
-    emoji: "🌱",
+    id: "vip",
+    name: "VIP",
+    emoji: "⭐",
     price: "149 ₽",
     color: "from-green-400 to-emerald-500",
     badge: null,
-    description: "Идеально для начала пути на сервере",
+    description: "Базовые привилегии для комфортной игры",
     perks: [
-      { icon: "Tag", text: "Префикс [Росток] в чате" },
-      { icon: "Palette", text: "Цветной ник" },
-      { icon: "Home", text: "2 домашних точки /home" },
-      { icon: "Package", text: "Стартовый набор предметов" },
+      { icon: "Tag", text: "Префикс [VIP] в чате" },
+      { icon: "Palette", text: "Цветной ник в чате" },
+      { icon: "Home", text: "3 домашних точки /sethome" },
+      { icon: "Package", text: "Стартовый набор /kit vip" },
       { icon: "Zap", text: "Приоритет входа на сервер" },
+      { icon: "MessageSquare", text: "Цветной текст в чате" },
+      { icon: "Clock", text: "Нет задержки команд" },
     ],
   },
   {
-    id: "sunflower",
-    name: "Подсолнух",
-    emoji: "🌻",
-    price: "349 ₽",
+    id: "premium",
+    name: "PREMIUM",
+    emoji: "💎",
+    price: "299 ₽",
     color: "from-yellow-400 to-orange-500",
     badge: "Популярный",
-    description: "Золотой уровень для активных игроков",
+    description: "Расширенные возможности для активных",
     perks: [
-      { icon: "Tag", text: "Префикс [Подсолнух] в чате" },
-      { icon: "Sparkles", text: "Кастомные эффекты частиц" },
-      { icon: "Home", text: "5 домашних точек /home" },
-      { icon: "ShoppingBag", text: "Доступ к /shop и /market" },
-      { icon: "Hammer", text: "Улучшенные инструменты" },
-      { icon: "Users", text: "Клановые команды" },
-      { icon: "Star", text: "Двойной опыт в выходные" },
+      { icon: "Tag", text: "Префикс [PREMIUM] в чате" },
+      { icon: "Palette", text: "Цветной ник + форматирование" },
+      { icon: "Home", text: "7 домашних точек /sethome" },
+      { icon: "Package", text: "Набор /kit premium каждые 3 дня" },
+      { icon: "Zap", text: "Приоритет входа на сервер" },
+      { icon: "Globe", text: "Команда /nick — смена ника" },
+      { icon: "Shield", text: "Защита региона 100×100" },
+      { icon: "Star", text: "Двойной опыт при добыче" },
     ],
   },
   {
-    id: "summer",
-    name: "Лето",
-    emoji: "☀️",
-    price: "749 ₽",
+    id: "elite",
+    name: "ELITE",
+    emoji: "👑",
+    price: "599 ₽",
     color: "from-sky-400 to-blue-500",
     badge: "Макс. привилегии",
-    description: "Полный контроль и максимум возможностей",
+    description: "Полный доступ ко всем возможностям сервера",
     perks: [
-      { icon: "Crown", text: "Префикс [Лето] в чате" },
-      { icon: "Wand2", text: "Кастомное оружие и броня" },
-      { icon: "MapPin", text: "Безлимитные домашние точки" },
+      { icon: "Crown", text: "Префикс [ELITE] в чате" },
+      { icon: "Palette", text: "Любые цвета и форматирование" },
+      { icon: "Home", text: "Безлимитные домашние точки" },
+      { icon: "Package", text: "Набор /kit elite каждый день" },
       { icon: "Plane", text: "Режим полёта /fly" },
-      { icon: "Zap", text: "Команда /speed — ускорение" },
-      { icon: "Shield", text: "Иммунитет к гриферам" },
-      { icon: "Gift", text: "Ежемесячный набор предметов" },
+      { icon: "Zap", text: "Ускорение /speed 1-5" },
+      { icon: "Shield", text: "Защита региона 200×200" },
+      { icon: "Globe", text: "Команда /nick и /hat" },
       { icon: "Star", text: "Тройной опыт всегда" },
+      { icon: "Gift", text: "Ежемесячный подарочный набор" },
       { icon: "Headphones", text: "Приоритетная поддержка" },
     ],
   },
@@ -69,16 +73,21 @@ const PACKAGES = [
 
 const SERVER_FEATURES = [
   { icon: "Trees", title: "Летняя карта", desc: "Огромный мир с тропическими биомами, пляжами и тёплым летним освещением" },
-  { icon: "Users", title: "Сообщество", desc: "Более 1200 активных игроков. Дружелюбная атмосфера, совместные ивенты" },
+  { icon: "Users", title: "Сообщество", desc: "Дружелюбная атмосфера, совместные ивенты и активный чат" },
   { icon: "Trophy", title: "Турниры", desc: "Еженедельные PvP-турниры и строительные конкурсы с призами" },
   { icon: "Shield", title: "Защита", desc: "Античит, защита регионов и активная модерация 24/7" },
 ];
 
-const STATUS_ITEMS = [
-  { name: "Основной сервер", version: "1.20.4", players: "87 / 200", ping: 12, online: true },
-  { name: "Творческий режим", version: "1.20.4", players: "23 / 100", ping: 15, online: true },
-  { name: "Мини-игры", version: "1.20.4", players: "0 / 50", ping: 0, online: false },
-];
+// Falling leaves config
+const LEAVES = Array.from({ length: 18 }, (_, i) => ({
+  id: i,
+  left: `${5 + (i * 37 + 13) % 90}%`,
+  delay: `${(i * 0.7) % 8}s`,
+  duration: `${6 + (i * 1.3) % 6}s`,
+  size: `${14 + (i * 7) % 14}px`,
+  rotate: `${(i * 47) % 360}deg`,
+  emoji: i % 3 === 0 ? "🍃" : i % 3 === 1 ? "🍂" : "🌿",
+}));
 
 export default function Index() {
   const [activeSection, setActiveSection] = useState("home");
@@ -90,14 +99,32 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen font-golos">
+    <div className="min-h-screen font-golos overflow-x-hidden">
+      {/* Falling leaves */}
+      <div className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
+        {LEAVES.map((leaf) => (
+          <div
+            key={leaf.id}
+            className="absolute top-0 leaf-fall"
+            style={{
+              left: leaf.left,
+              animationDelay: leaf.delay,
+              animationDuration: leaf.duration,
+              fontSize: leaf.size,
+            }}
+          >
+            {leaf.emoji}
+          </div>
+        ))}
+      </div>
+
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-yellow-200/50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <button onClick={() => scrollTo("home")} className="flex items-center gap-2">
-            <span className="text-2xl animate-float">☀️</span>
-            <span className="font-pacifico text-xl text-amber-600">SummerCraft</span>
-          </button>
+          <a href="https://SevasCube.ru" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+            <span className="text-2xl animate-float">🌿</span>
+            <span className="font-pacifico text-xl text-amber-600">SevasCube</span>
+          </a>
 
           <div className="hidden md:flex items-center gap-1">
             {NAV_ITEMS.map((item) => (
@@ -129,7 +156,7 @@ export default function Index() {
         <div className="relative h-[70vh] overflow-hidden">
           <img
             src={HERO_IMAGE}
-            alt="SummerCraft сервер"
+            alt="SevasCube сервер"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#FFFBEB]" />
@@ -139,10 +166,10 @@ export default function Index() {
             <div className="text-center px-6 animate-fade-in">
               <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full px-4 py-1.5 mb-6 text-amber-700 text-sm font-medium">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse inline-block" />
-                Сервер онлайн · 87 игроков
+                Сервер онлайн
               </div>
               <h1 className="font-pacifico text-6xl md:text-8xl text-white mb-4 drop-shadow-2xl" style={{ textShadow: '0 2px 30px rgba(245,158,11,0.5)' }}>
-                SummerCraft
+                SevasCube
               </h1>
               <p className="text-white/90 text-xl md:text-2xl font-medium drop-shadow-lg max-w-xl mx-auto mb-8">
                 Лучшее лето начинается здесь. Поддержи сервер и получи уникальные привилегии!
@@ -167,11 +194,10 @@ export default function Index() {
 
         {/* Stats bar */}
         <div className="bg-white/80 backdrop-blur-sm border-y border-amber-100">
-          <div className="max-w-4xl mx-auto grid grid-cols-3 divide-x divide-amber-100 py-6">
+          <div className="max-w-4xl mx-auto grid grid-cols-2 divide-x divide-amber-100 py-6">
             {[
-              { value: "1200+", label: "Игроков зарегистрировано", icon: "Users" },
-              { value: "3 года", label: "Сервер работает", icon: "Clock" },
-              { value: "24/7", label: "Онлайн без выходных", icon: "Zap" },
+              { value: "1 год", label: "Сервер работает", icon: "Clock" },
+              { value: "Онлайн", label: "Работаем без перерывов", icon: "Zap" },
             ].map((stat) => (
               <div key={stat.label} className="text-center px-6">
                 <div className="flex justify-center mb-1">
@@ -252,7 +278,7 @@ export default function Index() {
             <span className="inline-block bg-green-100 text-green-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
               🌿 Наш сервер
             </span>
-            <h2 className="font-pacifico text-5xl text-amber-800 mb-4">О SummerCraft</h2>
+            <h2 className="font-pacifico text-5xl text-amber-800 mb-4">О SevasCube</h2>
             <p className="text-amber-700/70 text-lg max-w-xl mx-auto">
               Мы создали уютный уголок для любителей Minecraft с тёплой летней атмосферой
             </p>
@@ -276,77 +302,23 @@ export default function Index() {
             <p className="text-amber-800/60 text-sm mb-2 font-medium">Адрес для подключения</p>
             <div className="inline-flex items-center gap-3 bg-amber-50 border-2 border-amber-200 rounded-2xl px-6 py-3">
               <Icon name="Server" size={20} className="text-amber-500" />
-              <span className="font-mono font-bold text-amber-900 text-xl">play.summercraft.ru</span>
-              <button className="text-amber-500 hover:text-amber-700 transition-colors">
-                <Icon name="Copy" size={16} />
-              </button>
+              <span className="font-mono font-bold text-amber-900 text-xl">mc.SevasCube.ru</span>
             </div>
             <p className="text-amber-600/60 text-sm mt-3">Версия: Java 1.20.4 · Bedrock поддерживается</p>
           </div>
         </div>
       </section>
 
-      {/* Status */}
-      <section id="status" className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <span className="inline-block bg-sky-100 text-sky-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
-              📡 Статус
-            </span>
-            <h2 className="font-pacifico text-5xl text-amber-800 mb-4">Статус серверов</h2>
-            <p className="text-amber-700/70 text-lg">Обновляется каждые 5 минут</p>
-          </div>
-
-          <div className="space-y-4">
-            {STATUS_ITEMS.map((srv, i) => (
-              <div key={i} className="glass-card rounded-2xl p-5 card-hover">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${srv.online ? "bg-green-500 shadow-[0_0_8px_rgba(74,222,128,0.8)]" : "bg-red-400"}`} />
-                    <div>
-                      <h3 className="font-bold text-amber-900">{srv.name}</h3>
-                      <p className="text-amber-600/60 text-xs">Версия {srv.version}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6 text-sm">
-                    <div className="text-center hidden sm:block">
-                      <div className="font-bold text-amber-900">{srv.players}</div>
-                      <div className="text-amber-600/60 text-xs">Игроков</div>
-                    </div>
-                    <div className="text-center hidden sm:block">
-                      <div className={`font-bold ${srv.online ? "text-green-600" : "text-red-400"}`}>
-                        {srv.online ? `${srv.ping} мс` : "—"}
-                      </div>
-                      <div className="text-amber-600/60 text-xs">Пинг</div>
-                    </div>
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${
-                      srv.online ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
-                    }`}>
-                      {srv.online ? "Онлайн" : "Оффлайн"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-8">
-            <span className="inline-flex items-center gap-2 text-amber-600/60 text-sm">
-              <Icon name="RefreshCw" size={14} />
-              Последнее обновление: только что
-            </span>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="border-t border-amber-100 bg-white/50 py-10 px-6 text-center">
-        <div className="font-pacifico text-2xl text-amber-600 mb-2">SummerCraft</div>
-        <p className="text-amber-700/50 text-sm mb-4">Лучшее лето начинается здесь ☀️</p>
+        <a href="https://SevasCube.ru" target="_blank" rel="noopener noreferrer" className="font-pacifico text-2xl text-amber-600 mb-2 hover:text-amber-700 transition-colors inline-block">
+          SevasCube.ru
+        </a>
+        <p className="text-amber-700/50 text-sm mb-4 mt-1">Лучшее лето начинается здесь 🌿</p>
         <div className="flex justify-center gap-6 text-amber-600/50 text-xs">
           <a href="#" className="hover:text-amber-600 transition-colors">Правила</a>
           <a href="#" className="hover:text-amber-600 transition-colors">Политика возврата</a>
-          <a href="#" className="hover:text-amber-600 transition-colors">Поддержка</a>
+          <a href="https://SevasCube.ru" target="_blank" rel="noopener noreferrer" className="hover:text-amber-600 transition-colors">Сайт сервера</a>
         </div>
       </footer>
     </div>
